@@ -1,0 +1,19 @@
+{
+  "name": "chess-voice-game",
+  "version": "1.0.0",
+  "description": "A chess game with voice interaction.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package-windows": "electron-packager . chess-voice-game --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "dependencies": {
+   
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "@electron/packager": "^18.3.4",
+    "electron-builder": "^24.13.3",
+    "electron-packager": "^15.5.2"
+  }
+}
