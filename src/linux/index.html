@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Full-page placeholder image -->
+    <img id="placeholderImage" src="assets/logo_1.jpeg" alt="Loading chessboard..." class="placeholder-image">
+
+    <!-- Blurred placeholder image background and loading sign -->
+    <div id="blurredBackground" class="blurred-background"></div>
+    <div id="loadingSign" class="loading-sign"></div>
+
+    <!-- Main container hidden initially -->
+    <div class="container" style="display:none;">
+        <!-- Left Panel: Chessboard and Captured Pieces -->
+        <div class="left-panel">
+            <!-- Row Labels (1-8) on the left side -->
+            <div class="row-labels">
+                <div class="row-label">8</div>
+                <div class="row-label">7</div>
+                <div class="row-label">6</div>
+                <div class="row-label">5</div>
+                <div class="row-label">4</div>
+                <div class="row-label">3</div>
+                <div class="row-label">2</div>
+                <div class="row-label">1</div>
+            </div>
+
+            <!-- Chessboard -->
+            <div id="chessboard" class="chessboard"></div>
+
+            <!-- Column Labels (A-H) below the chessboard -->
+            <div class="col-labels">
+                <div class="col-label">A</div>
+                <div class="col-label">B</div>
+                <div class="col-label">C</div>
+                <div class="col-label">D</div>
+                <div class="col-label">E</div>
+                <div class="col-label">F</div>
+                <div class="col-label">G</div>
+                <div class="col-label">H</div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Messages and Inputs -->
+        <div class="right-panel">
+            <div id="messagePanel" class="message-panel"></div>
+            <div class="input-group">
+                <input id="moveInput" type="text" placeholder="Your move (e.g: e2 e4)" class="move-input" />
+                <button id="submitMoveButton" class="submit-button">&#8594;</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
