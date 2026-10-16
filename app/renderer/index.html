@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Knights Talk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <a class="skip-link" href="#moveInput">Skip to command box</a>
+
+    <header class="topbar">
+        <div class="brand">
+            <img src="../assets/logo.jpeg" alt="" class="brand-logo">
+            <div>
+                <h1>Knights Talk</h1>
+                <p class="tagline">Voice-controlled chess</p>
+            </div>
+        </div>
+        <div id="statusPill" class="status-pill" role="status" aria-live="polite" data-state="idle">
+            <span class="dot"></span><span id="statusText">Starting…</span>
+        </div>
+        <div class="topbar-actions">
+            <button id="helpButton" class="icon-button" aria-label="Voice commands help" title="Voice commands (F1)">?</button>
+            <button id="settingsButton" class="icon-button" aria-label="Settings" title="Settings">&#9881;</button>
+        </div>
+    </header>
+
+    <div id="srAnnounce" class="sr-only" aria-live="assertive"></div>
+
+    <div id="banner" class="banner" role="alert" hidden></div>
+
+    <main class="layout">
+        <section class="board-column" aria-label="Chessboard">
+            <div class="player-bar" id="opponentBar">
+                <div class="avatar avatar-engine" aria-hidden="true">&#9822;</div>
+                <div class="player-info">
+                    <span class="player-name">Stockfish <span id="levelBadge" class="badge"></span></span>
+                    <span class="captured" id="capturedByOpponent" aria-label="Pieces captured by Stockfish"></span>
+                </div>
+                <span class="advantage" id="advOpponent"></span>
+            </div>
+
+            <div class="board-wrap">
+                <div id="board" class="board" role="grid" aria-label="Chess board"></div>
+                <div id="startOverlay" class="overlay">
+                    <div class="card start-card">
+                        <h2>Ready to play?</h2>
+                        <p>Say <strong>“start game”</strong> or press <kbd>Enter</kbd>.<br>
+                           Say <strong>“help”</strong> at any time to hear what you can say.</p>
+                        <div class="start-options">
+                            <fieldset>
+                                <legend>Play as</legend>
+                                <label><input type="radio" name="color" value="white" checked> White</label>
+                                <label><input type="radio" name="color" value="black"> Black</label>
+                            </fieldset>
+                            <label class="level-field">Difficulty: <strong id="levelLabel"></strong>
+                                <input id="levelSlider" type="range" min="0" max="20" value="8">
+                            </label>
+                        </div>
+                        <button id="startButton" class="primary big">Start game</button>
+                    </div>
+                </div>
+                <div id="resultOverlay" class="overlay" hidden>
+                    <div class="card result-card" role="dialog" aria-modal="true" aria-labelledby="resultHeadline">
+                        <div id="resultIcon" class="result-icon" aria-hidden="true"></div>
+                        <h2 id="resultHeadline"></h2>
+                        <p id="resultDetail"></p>
+                        <p class="result-score" id="resultScore"></p>
+                        <div class="row">
+                            <button id="playAgainButton" class="primary big">Play again</button>
+                            <button id="closeResultButton" class="ghost">View board</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="promotionPicker" class="promotion" hidden role="dialog" aria-label="Choose promotion piece"></div>
+            </div>
+
+            <div class="player-bar" id="playerBar">
+                <div class="avatar avatar-you" aria-hidden="true">&#9818;</div>
+                <div class="player-info">
+                    <span class="player-name">You <span id="colorBadge" class="badge"></span></span>
+                    <span class="captured" id="capturedByYou" aria-label="Pieces you captured"></span>
+                </div>
+                <span class="advantage" id="advYou"></span>
+            </div>
+        </section>
+
+        <aside class="side-panel">
+            <section class="card mic-card" aria-label="Microphone">
+                <button id="micButton" class="mic-button" aria-pressed="false" aria-label="Microphone off. Press to start listening">
+                    <span class="mic-ring" id="micRing"></span>
+                    <span class="mic-icon" aria-hidden="true">&#127908;</span>
+                </button>
+                <div class="mic-text">
+                    <strong id="micTitle">Microphone off</strong>
+                    <span id="micHint">Press M or click to start hands-free listening</span>
+                </div>
+            </section>
+
+            <section class="card log-card" aria-label="Conversation">
+                <h2>Conversation</h2>
+                <div id="log" class="log" role="log" aria-live="polite"></div>
+                <form id="commandForm" class="command-form" autocomplete="off">
+                    <label for="moveInput" class="sr-only">Type a move or command</label>
+                    <input id="moveInput" type="text" placeholder="Type a move or command, e.g. e2 e4" spellcheck="false">
+                    <button type="submit" class="primary" aria-label="Send">&#10148;</button>
+                </form>
+            </section>
+
+            <section class="card moves-card" aria-label="Moves">
+                <h2>Moves</h2>
+                <ol id="moves" class="moves"></ol>
+            </section>
+
+            <section class="actions" aria-label="Game actions">
+                <button id="hintButton" class="ghost">&#128161; Hint</button>
+                <button id="undoButton" class="ghost">&#8630; Undo</button>
+                <button id="readButton" class="ghost">&#128483; Read board</button>
+                <button id="drawButton" class="ghost">&#189; Draw</button>
+                <button id="resignButton" class="danger">&#9873; Resign</button>
+                <button id="newButton" class="ghost">&#10227; New game</button>
+            </section>
+        </aside>
+    </main>
+
+    <div id="settingsOverlay" class="overlay modal" hidden>
+        <div class="card settings-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <h2 id="settingsTitle">Settings</h2>
+            <label>Voice
+                <select id="voiceSelect"></select>
+            </label>
+            <label>Speech speed <output id="rateOut"></output>
+                <input id="rateSlider" type="range" min="0.6" max="1.8" step="0.1" value="1">
+            </label>
+            <label>Volume <output id="volumeOut"></output>
+                <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="1">
+            </label>
+            <label>Microphone sensitivity <output id="sensOut"></output>
+                <input id="sensSlider" type="range" min="1" max="5" step="1" value="3">
+            </label>
+            <label class="check"><input id="contrastToggle" type="checkbox"> High-contrast board</label>
+            <label class="check"><input id="speakMovesToggle" type="checkbox" checked> Read out moves and replies</label>
+            <div class="row">
+                <button id="testVoiceButton" class="ghost">Test voice</button>
+                <button id="closeSettingsButton" class="primary">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpOverlay" class="overlay modal" hidden>
+        <div class="card help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+            <h2 id="helpTitle">What you can say</h2>
+            <ul class="help-list">
+                <li><strong>Moves:</strong> “e2 to e4”, “knight to f3”, “g1 f3”, “castle kingside”</li>
+                <li><strong>Promotion:</strong> “a7 a8 promote to knight” (queen by default)</li>
+                <li><strong>Game:</strong> “new game”, “play as black”, “undo”, “offer a draw”, “resign”</li>
+                <li><strong>Information:</strong> “hint”, “read the board”, “repeat”, “captured pieces”, “help”</li>
+                <li><strong>Microphone:</strong> “stop listening”</li>
+            </ul>
+            <p class="muted">Keys: <kbd>M</kbd> microphone · <kbd>Enter</kbd> start / play again · <kbd>Esc</kbd> stop speech ·
+               <kbd>/</kbd> focus command box · <kbd>F1</kbd> this help · arrow keys move around the board.</p>
+            <button id="closeHelpButton" class="primary">Close</button>
+        </div>
+    </div>
+
+    <script src="js/speaker.js"></script>
+    <script src="js/voice-input.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

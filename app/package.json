@@ -1,0 +1,27 @@
+{
+  "name": "knights-talk",
+  "version": "2.0.0",
+  "description": "Voice-controlled chess against Stockfish, built for players who are blind, low-vision or have limited mobility.",
+  "main": "main.js",
+  "author": "Nithusikan01",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build:backend": "pyinstaller --noconfirm --distpath backend-dist --workpath backend-build backend/app.spec",
+    "dist:linux": "npm run build:backend && electron-builder --linux AppImage deb",
+    "dist:win": "npm run build:backend && electron-builder --win nsis",
+    "test:backend": "python -m pytest backend/tests"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.knightstalk.app",
+    "productName": "Knights Talk",
+    "files": ["main.js", "preload.js", "renderer/**/*", "assets/**/*"],
+    "extraResources": [{ "from": "backend-dist/chess_backend", "to": "backend" }],
+    "linux": { "icon": "assets/logo.jpeg", "category": "Game", "target": ["AppImage", "deb"] },
+    "win": { "icon": "assets/logo.ico", "target": "nsis" }
+  }
+}
